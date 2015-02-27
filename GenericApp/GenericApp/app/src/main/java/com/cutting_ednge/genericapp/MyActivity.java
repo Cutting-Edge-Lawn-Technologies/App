@@ -8,6 +8,9 @@ import android.view.MenuItem;
 
 public class MyActivity extends Activity {
 
+    //this class is unused
+    //todo: delete this class
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

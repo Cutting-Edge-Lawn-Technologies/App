@@ -10,7 +10,7 @@ import android.widget.Button;
  * Created by Aaron on 2/25/2015.
  */
 public class HomeScreen extends WebServiceActivity implements View.OnClickListener {
-
+    //buttons
     Button settings;
     Button messages;
     Button viewRequests;
@@ -20,20 +20,23 @@ public class HomeScreen extends WebServiceActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen_activity);
+        //makes sure WebService is running
         ws();
+        //sets up the buttons
         setupButtons();
     }
 
     private void setupButtons(){
+        //settings button
         settings = (Button) findViewById(R.id.btnSettingsClient);
         settings.setOnClickListener(this);
-
+        //messages button
         messages = (Button) findViewById(R.id.btnMessagesClient);
         messages.setOnClickListener(this);
-
+        //view requests button
         viewRequests = (Button) findViewById(R.id.btnCheckStatusClient);
         viewRequests.setOnClickListener(this);
-
+        //submit requests button
         submitRequest = (Button) findViewById(R.id.btnSubmitRequest);
         submitRequest.setOnClickListener(this);
     }
@@ -58,6 +61,6 @@ public class HomeScreen extends WebServiceActivity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-
+        //todo: add buttons and shits to this part and make them work
     }
 }

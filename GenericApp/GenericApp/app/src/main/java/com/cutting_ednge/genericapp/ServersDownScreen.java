@@ -11,11 +11,13 @@ import android.widget.Button;
 public class ServersDownScreen extends WebServiceActivity implements  View.OnClickListener {
     @Override
     public void onClick(View v) {
-        finish();
+        //on clicking the button it kills the app
+        System.exit(1);
     }
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.servers_down_activity);
+        //setup the close window "Okay" button
         Button close = (Button) findViewById(R.id.btnServersDown);
         close.setOnClickListener(this);
     }

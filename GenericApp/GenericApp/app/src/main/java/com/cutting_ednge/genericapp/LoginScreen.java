@@ -10,15 +10,18 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
-public class LoginScreen extends WebServiceActivity implements OnTaskCompleted, View.OnClickListener, ConnectionFailureListener{
+public class LoginScreen extends WebServiceActivity implements View.OnClickListener, ConnectionFailureListener{
     private Button close;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_screen_layout);
         setupLoginButton();
+        //creates Web Service
         ws();
+        //Creates failure listener
         ws().addConnectionFailureListener(this);
+        //connects
         ws().connect();
 
     }
@@ -56,21 +59,22 @@ public class LoginScreen extends WebServiceActivity implements OnTaskCompleted, 
         //get password and username
         String usrName = username.getText().toString();
         String pssWord = password.getText().toString();
+        //login
         ws().login(usrName, pssWord);
+        //go to waiting for authorsation screen while processing password combo
         Intent waiting = new Intent(this, LoginWaitScreen.class);
         startActivity(waiting);
+        //finish so that can't come back
         finish();
     }
 
     @Override
-    public void onTaskCompleted() {
-
-    }
-
-    @Override
     public void ConnectionFailure() {
+        //on failure to connect
+        //go to servers down screen
         Intent serversOopsed = new Intent(this, ServersDownScreen.class);
         startActivity(serversOopsed);
+        //finish so that you can't come back
         finish();
     }
 }

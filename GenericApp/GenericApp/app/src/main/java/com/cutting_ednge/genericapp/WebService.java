@@ -40,32 +40,49 @@ public class WebService extends AsyncTask<String, Void, String> {
     private boolean admin = false;
     private String USRNAME;
     private String PSSWORD;
+    //on create instance, then start the thread
     private WebService() {
         this.execute("");
     }
+    //if it completed the login process, then say so
     public boolean isLogedIn(){
         return loginComplete;
     }
+    //if login worked, then say so
     public boolean loginWorked(){
         return loginResults;
     }
+    //if they where an admin say so
     public boolean isAdmin(){
         return admin;
     }
+    //adds a listener to tell when the task is done
     public void addListener(OnTaskCompleted listener) {
         this.listener = listener;
     }
+    //creates a listener for if the connection failed
     public void addConnectionFailureListener(ConnectionFailureListener connListener){
         this.connListener = connListener;
     }
+    //sets connected to false so that it runs the connection code
     public void connect(){connected = false;}
+    //starts the login process
+    public void startLoginProcess(){
+        login =true;
+    }
+
+
     @Override
     protected String doInBackground(String... params) {
+        //todo: add a close option that sets running to false
         boolean running = true;
         //so can notify in loop thread
         Looper.prepare();
+        //infinte loop because can't start thread more than once
         while(running) {
+            //if it is not connected than try to connect
             if (!connected) {
+                //try to connect
                 try {//on create instance it tries to connect to server
                     socket = new Socket("98.223.97.52", PORT);
                     InputStream is = socket.getInputStream();
@@ -73,51 +90,84 @@ public class WebService extends AsyncTask<String, Void, String> {
                     InputStreamReader isr = new InputStreamReader(is);
                     pw = new PrintWriter(os);
                     br = new BufferedReader(isr);
+                    //if this all worked than it connected
                     connected = true;
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                    //if it didn't then it didn't connect and we need to tell somebody
+                    //no seriously if we don't tell someone we could get into trouble
+                    //they might think we did it, or the app with crash
+                    //or something bad will happen
                     connListener.ConnectionFailure();
+                    //set connected to true so that it doesn't keep looping the failed connection
                     connected= true;
                 }
             }
+            //if entering the login part of the loop
             if (login) {
+                //set login to false so that it doesn't keep trying to login
                 login = false;
+                //parsing stuffs
                 String s = USRNAME + "~" + PSSWORD;
+                //try to read this stuff, and find out if I got in
                 try {
+                    //send the stuff to the server
                     pw.println(s);
                     pw.flush();
+                    //message is message from server
                     String message;
+                    //read the message
                     message = br.readLine();
-                    System.out.println(message);
+                    //if the message is Login Success~Admin then it was a success and an admin
                     if (message.contentEquals("Login Success~Admin")) {
-                        System.out.println("Admin");
+                        //admin? yes
                         admin = true;
+                        //login completed? yes
                         loginComplete = true;
+                        //login worked? yes
                         loginResults = true;
-                        listener.onTaskCompleted();
-                    } else if (message.contentEquals("Login Success~Client")) {
-                        System.out.println("Client");
-                        admin = false;
-                        loginComplete = true;
-                        loginResults = true;
-                        listener.onTaskCompleted();
-                    } else {
-                        loginComplete = true;
-                        loginResults = false;
+                        //ship it
                         listener.onTaskCompleted();
                     }
-                } catch (Exception e) {
+                    //else if message is \|/ that then it was a client who logged in successfully
+                    else if (message.contentEquals("Login Success~Client")) {
+                        //admin? no
+                        admin = false;
+                        //login completed? yes
+                        loginComplete = true;
+                        //login worked? yes
+                        loginResults = true;
+                        //ship it
+                        listener.onTaskCompleted();
+                    }
+                    //else login verification failed
+                    else {
+                        //login completed? yes
+                        loginComplete = true;
+                        //login worked? no
+                        loginResults = false;
+                        //ship it
+                        listener.onTaskCompleted();
+                    }
+                }
+                //catch the server derping, or something crazy
+                catch (Exception e) {
                     e.printStackTrace();
+                    //login completed? no
                     loginComplete = false;
+                    //login worked? maybe, but lets go with no
                     loginResults = false;
+                    //ship it
                     listener.onTaskCompleted();
+                    //also ship that it derped
                     connListener.ConnectionFailure();
                 }
             }
         }
+        //no idea why i need this, but it is important
         return null;
     }
-
+    //not sure why I need this either, but it is important
     public static WebService getInstance() {//if an instance does not exist make a new instance
         if (instance == null)
             instance = new WebService();
@@ -129,9 +179,9 @@ public class WebService extends AsyncTask<String, Void, String> {
         this.USRNAME = USRNAME;
         this.PSSWORD = PSSWORD;
     }
-    public void startLoginProcess(){
-        login =true;
-    }
+    //**********************************************************************************************
+    //************************* noting below this line is currently being used yet *****************
+    //**********************************************************************************************
     public String getFeeds() {
         /**
          * 0 = Home screen

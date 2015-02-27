@@ -8,6 +8,8 @@ import android.view.MenuItem;
  * Created by Aaron on 2/26/2015.
  */
 public class HomeScreenBusiness extends WebServiceActivity {
+    //todo: wire up buttons
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
