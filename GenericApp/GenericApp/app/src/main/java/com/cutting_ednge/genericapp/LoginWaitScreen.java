@@ -9,17 +9,25 @@ import android.widget.Toast;
 /**
  * Created by Aaron on 2/25/2015.
  */
-public class LoginWaitScreen extends WebServiceActivity implements OnTaskCompleted {
+public class LoginWaitScreen extends WebServiceActivity implements OnTaskCompleted, ConnectionFailureListener {
     Chronometer chronometer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ws().addListener(this);
+        ws().addConnectionFailureListener(this);
         ws().startLoginProcess();
         setContentView(R.layout.loading_screen_login_layout);
         chronometer = (Chronometer)findViewById(R.id.chronometer);
         chronometer.start();
 
+    }
+
+    @Override
+    public void ConnectionFailure(){
+        Intent serversOopsed = new Intent(this, ServersDownScreen.class);
+        startActivity(serversOopsed);
+        finish();
     }
 
     @Override

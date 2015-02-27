@@ -17,6 +17,7 @@ import java.net.UnknownHostException;
  */
 public class WebService extends AsyncTask<String, Void, String> {
     private OnTaskCompleted listener;
+    private ConnectionFailureListener connListener;
     private static WebService instance;
     private Socket socket;
 
@@ -54,6 +55,9 @@ public class WebService extends AsyncTask<String, Void, String> {
     public void addListener(OnTaskCompleted listener) {
         this.listener = listener;
     }
+    public void addConnectionFailureListener(ConnectionFailureListener connListener){
+        this.connListener = connListener;
+    }
     public void connect(){connected = false;}
     @Override
     protected String doInBackground(String... params) {
@@ -72,7 +76,7 @@ public class WebService extends AsyncTask<String, Void, String> {
                     connected = true;
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    listener.onTaskCompleted();
+                    connListener.ConnectionFailure();
                     connected= true;
                 }
             }
@@ -107,6 +111,7 @@ public class WebService extends AsyncTask<String, Void, String> {
                     loginComplete = false;
                     loginResults = false;
                     listener.onTaskCompleted();
+                    connListener.ConnectionFailure();
                 }
             }
         }

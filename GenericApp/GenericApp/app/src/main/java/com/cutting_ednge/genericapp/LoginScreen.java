@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
-public class LoginScreen extends WebServiceActivity implements OnTaskCompleted, View.OnClickListener{
+public class LoginScreen extends WebServiceActivity implements OnTaskCompleted, View.OnClickListener, ConnectionFailureListener{
     private Button close;
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -18,7 +18,7 @@ public class LoginScreen extends WebServiceActivity implements OnTaskCompleted, 
         setContentView(R.layout.login_screen_layout);
         setupLoginButton();
         ws();
-        ws().addListener(this);
+        ws().addConnectionFailureListener(this);
         ws().connect();
 
     }
@@ -64,8 +64,13 @@ public class LoginScreen extends WebServiceActivity implements OnTaskCompleted, 
 
     @Override
     public void onTaskCompleted() {
+
+    }
+
+    @Override
+    public void ConnectionFailure() {
         Intent serversOopsed = new Intent(this, ServersDownScreen.class);
         startActivity(serversOopsed);
-        System.exit(1);
+        finish();
     }
 }
