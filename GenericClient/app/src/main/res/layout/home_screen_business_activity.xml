@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView2"
+        android:src="#ff21ff00"
+        android:minHeight="50dp"
+        android:minWidth="150dp"
+        android:maxWidth="150dp"
+        android:maxHeight="50dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:src="#ff0047ff"
+        android:minHeight="50dp"
+        android:minWidth="200dp"
+        android:layout_toEndOf="@+id/imageView2"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Request"
+        android:id="@+id/btnViewRequest"
+        android:layout_below="@+id/imageView2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="97dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check Status"
+        android:id="@+id/btnCheckStatusBusiness"
+        android:layout_alignTop="@+id/btnViewRequest"
+        android:layout_toEndOf="@+id/btnViewRequest"
+        android:singleLine="true"
+        android:layout_alignRight="@+id/imageView"
+        android:layout_alignEnd="@+id/imageView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:id="@+id/btnSettingsBusiness"
+        android:layout_below="@+id/btnViewRequest"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/btnMessagesBusiness"
+        android:layout_toStartOf="@+id/btnMessagesBusiness" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Messages"
+        android:id="@+id/btnMessagesBusiness"
+        android:layout_below="@+id/btnViewRequest"
+        android:layout_toRightOf="@+id/btnViewRequest"
+        android:layout_toEndOf="@+id/btnViewRequest"
+        android:layout_alignRight="@+id/btnCheckStatusBusiness"
+        android:layout_alignEnd="@+id/btnCheckStatusBusiness" />
+
+</RelativeLayout>

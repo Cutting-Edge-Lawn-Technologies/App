@@ -1,0 +1,61 @@
+/**
+ * 
+ */
+package server;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+
+/**
+ * @author Aaron
+ *
+ */
+public class InfoServer implements Runnable {
+	private Connection conn = null;
+	Statement st = null;
+	PreparedStatement pst = null;
+	private int userID;
+	private Socket sock;
+	private int screen = 0;
+	/**
+	 * 0 = Home screen
+	 * 1 = Contacts Search Screen
+	 * 2 = Staff Page
+	 * 3 = Job Search
+	 * 4 = Inbox
+	 * 5 = Job Page
+	 * 6 = Ticket page
+	 * 7 = Employee Page
+	 * 8 = Contacts Screen
+	 */
+	private InputStream is;
+	private OutputStream os;
+	private BufferedReader br;
+	
+	public InfoServer(int USR_ID, Socket SOCKET){
+		userID = USR_ID;
+		sock = SOCKET;
+	}
+	
+	@Override
+	public void run() {
+		try {
+			is = sock.getInputStream();
+			os = sock.getOutputStream();
+			InputStreamReader isr = new InputStreamReader(is);
+			PrintWriter pw = new PrintWriter(os);
+			br = new BufferedReader(isr);
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+}

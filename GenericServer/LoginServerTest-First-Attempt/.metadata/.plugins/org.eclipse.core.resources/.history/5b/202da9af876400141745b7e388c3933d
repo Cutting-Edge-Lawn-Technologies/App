@@ -1,0 +1,89 @@
+/**
+ * 
+ */
+package server;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+
+/**
+ * @author Aaron
+ *
+ */
+public class InfoServer implements Runnable {
+	private Connection conn = null;
+	Statement st = null;
+	PreparedStatement pst = null;
+	private int userID;
+	private Socket sock;
+	private int screen = 0;
+	/**
+	 * 0 = Home screen
+	 * 1 = Contacts Search Screen
+	 * 2 = Staff Page
+	 * 3 = Job Search
+	 * 4 = Inbox
+	 * 5 = Job Page
+	 * 6 = Ticket page
+	 * 7 = Employee Page
+	 * 8 = Contacts Screen
+	 */
+	//server commands start with "#@!?Server:"
+	private InputStream is;
+	private OutputStream os;
+	private BufferedReader br;
+	
+	public InfoServer(int USR_ID, Socket SOCKET){
+		userID = USR_ID;
+		sock = SOCKET;
+		connect();
+		
+	}
+	
+	private void connect(){
+		try{
+			//connect to database
+			conn = DriverManager.getConnection("jdbc:ucanaccess://serverDB.accdb");
+			//test connection?
+			st = conn.createStatement();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		
+	}
+	
+	@Override
+	public void run() {
+		try {
+			is = sock.getInputStream();
+			os = sock.getOutputStream();
+			InputStreamReader isr = new InputStreamReader(is);
+			PrintWriter pw = new PrintWriter(os);
+			br = new BufferedReader(isr);
+			String message;
+			while((message = br.readLine())!= null){ //While more to read
+				
+				if(message.startsWith("#@!?Server:")){ //if it is a server command
+					if(message.replace("#@!?Server:", "")!=null){
+						
+					}
+				}
+			}
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+}

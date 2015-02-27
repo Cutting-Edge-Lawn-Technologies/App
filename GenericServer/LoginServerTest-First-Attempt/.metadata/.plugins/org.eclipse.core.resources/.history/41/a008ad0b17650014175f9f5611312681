@@ -1,0 +1,142 @@
+/**
+ * 
+ */
+package server;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+
+/**
+ * @author Aaron
+ *
+ */
+public class InfoServer implements Runnable {
+	private Connection conn = null;
+	Statement st = null;
+	PreparedStatement pst = null;
+	private int userID;
+	private Socket sock;
+	private int screen = 0;
+	//commands
+    private final String SVRCMD = "#@!?Server:";
+    private final String PAGECMD = "GOTOSCREEN:";
+    private final String GETFEEDS = "GETFEED";
+    private final String CLIENTCMD = "#@!?Client:";
+	/**
+	 * 0 = Home screen
+	 * 1 = Contacts Search Screen
+	 * 2 = Staff Page
+	 * 3 = Job Search
+	 * 4 = Inbox
+	 * 5 = Job Page
+	 * 6 = Ticket page
+	 * 7 = Employee Page
+	 * 8 = Contacts Screen
+	 */
+	//server commands start with "#@!?Server:"
+	private InputStream is;
+	private OutputStream os;
+	private BufferedReader br;
+	
+	public InfoServer(int USR_ID, Socket SOCKET){
+		userID = USR_ID;
+		sock = SOCKET;
+		connect();
+		
+	}
+	
+	private void connect(){
+		try{
+			//connect to database
+			conn = DriverManager.getConnection("jdbc:ucanaccess://serverDB.accdb");
+			//test connection?
+			st = conn.createStatement();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		
+	}
+	
+	@Override
+	public void run() {
+		System.out.println("running");
+		try {
+			is = sock.getInputStream();
+			os = sock.getOutputStream();
+			InputStreamReader isr = new InputStreamReader(is);
+			PrintWriter pw = new PrintWriter(os);
+			br = new BufferedReader(isr);
+			String message ="";
+			System.out.println("in b4 loop");
+			while((message = br.readLine())!= null){ //While more to read
+				System.out.println("loop");
+				if(message.startsWith(SVRCMD)){ //if it is a server command
+					try{
+						//put server command code here
+						String serverMessage = message.replace(SVRCMD, "").trim();
+						if(serverMessage.startsWith(PAGECMD)){
+							screen = Integer.parseInt(message.replace(PAGECMD, "").trim());
+							System.out.println("On page:"+screen);
+						}
+						if(serverMessage.matches(GETFEEDS)){
+							String sendback =" ";
+							sendback = CLIENTCMD + getFeed();
+							pw.write(sendback);
+							pw.flush();
+						}
+						
+					}
+					catch(NumberFormatException nfe){
+						//then it wasn't an page command, maybe more elegant way of doing this
+					}
+				}
+				else{
+					System.out.println("error");
+				}
+			}
+			System.out.println("out of loop!");
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	private String getFeed() {
+		// TODO Auto-generated method stub
+		switch(screen){
+		case 0:
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			break;
+		case 6:
+			break;
+		case 7:
+			break;
+		case 8: 
+			break;
+		default:
+			break;
+		}
+		return "";
+	}
+
+}

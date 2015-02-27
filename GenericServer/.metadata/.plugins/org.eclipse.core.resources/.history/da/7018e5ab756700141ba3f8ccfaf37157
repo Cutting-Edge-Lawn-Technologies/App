@@ -1,0 +1,230 @@
+/**
+ * 
+ */
+package server;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+/**
+ * @author Aaron
+ *
+ */
+public class InfoServer implements Runnable {
+	private Connection conn = null;
+	private Statement st = null;
+	private PreparedStatement pst0 = null;
+	private PreparedStatement pst1 = null;
+	private PreparedStatement pst2 = null;
+	private ResultSet rs0 = null;
+	private ResultSet rs1 = null;
+	private ResultSet rs2 = null;
+	private int userID;
+	private Socket sock;
+	private int screen = 0;
+	//commands
+    private final String SVRCMD = "#@!?Server:";
+    private final String PAGECMD = "GOTOSCREEN:";
+    private final String GETFEEDS = "GETFEED";
+    private final String CLIENTCMD = "#@!?Client:";
+	/**
+	 * 0 = Home screen
+	 * 1 = Contacts Search Screen
+	 * 2 = Staff Page
+	 * 3 = Job Search
+	 * 4 = Inbox
+	 * 5 = Job Page
+	 * 6 = Ticket page
+	 * 7 = Employee Page
+	 * 8 = Contacts Screen
+	 */
+	//server commands start with "#@!?Server:"
+	private InputStream is;
+	private OutputStream os;
+	private BufferedReader br;
+	
+	public InfoServer(int USR_ID, Socket SOCKET){
+		userID = USR_ID;
+		sock = SOCKET;
+		connect();
+		
+	}
+	
+	private void connect(){
+		try{
+			//connect to database
+			conn = DriverManager.getConnection("jdbc:ucanaccess://serverDB.accdb");
+			//test connection?
+			st = conn.createStatement();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		
+	}
+	
+	@Override
+	public void run() {
+		System.out.println("running");
+		try {
+			is = sock.getInputStream();
+			os = sock.getOutputStream();
+			InputStreamReader isr = new InputStreamReader(is);
+			PrintWriter pw = new PrintWriter(os);
+			br = new BufferedReader(isr);
+			String message ="";
+			while((message = br.readLine())!= null){ //While more to read
+				System.out.println("loop");
+				if(message.startsWith(SVRCMD)){ //if it is a server command
+					try{
+						//put server command code here
+						String serverMessage = message.replace(SVRCMD, "").trim();
+						if(serverMessage.startsWith(PAGECMD)){
+							screen = Integer.parseInt(serverMessage.replace(PAGECMD, "").trim());
+						}
+						if(serverMessage.contentEquals(GETFEEDS)){
+							String sendback =" ";
+							sendback = CLIENTCMD + getFeed();
+							pw.println(sendback);
+							pw.flush();
+						}
+						
+					}
+					catch(NumberFormatException nfe){
+						//then it wasn't an page command, maybe more elegant way of doing this
+					}
+				}
+				else{
+					System.out.println("error");
+				}
+			}
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	private String getFeed() {
+		// TODO Auto-generated method stub
+		String feed="";
+		switch(screen){
+		case 0://i lied not home screen
+			break;
+		case 1:
+			try{
+				String sql="select * from jobs_tbl where  userIDs=?";// SQL code for jobs
+				pst0 = conn.prepareStatement(sql);//sql command for jobs
+				pst0.setInt(1,userID);//sql cmd pass the statement the user ID as a filter
+				rs0 = pst0.executeQuery();//sql cmd rs0 is jobs for that user
+				
+				int i = 0;//itterator for how many companies they serve
+				ArrayList<Integer> companiesID = new ArrayList<Integer>(0);//Array list of the companiesID so can itterate thru them later in code
+				ArrayList<String> companiesName = new ArrayList<String>(0);
+				sql = "select * from tickets_tbl where company =?";//more sql code but for tickets
+				while(rs0.next()){//while querry has another job...
+					feed+=rs0.getString(1)+"."+rs0.getString(3)+"\n";//get CompanyID and CompanyName
+					companiesID.add(Integer.parseInt(rs0.getString(1)));//add which company it is
+					companiesName.add(rs0.getString(3));
+					if(i!=0)
+						sql+=" or company =?";//if ! first then add more "or companies" to list
+					i++;
+				}
+				pst1 = conn.prepareStatement(sql);//more sql cmds..pst0 is tickets now
+				i = 1;//start at 1 because SQL is weird and starts at 1 not 0
+				for(int j:companiesID){//for each company...
+					pst1.setInt(i , j);//set each "or company" criteria to a company
+					i++;
+				}
+				rs1 = pst1.executeQuery();//run query of tickets...rs0 is tickets now
+				String Employees = "";
+				int record = 0;
+				while(rs1.next()){//while ticket query has more records
+					sql = "select firstname, lastname from employees_tbl where employeeID =?";//sql cmd to pull up the employees name
+					pst2 = conn.prepareStatement(sql);
+					pst2.setInt(1, Integer.parseInt(rs1.getString(3)));
+					rs2 = pst2.executeQuery();
+					rs2.next();
+					/**
+					 * the following two areas do the exact same thing but I'm not sure which will be more efficent...will test
+					 */
+					long startTime = System.currentTimeMillis();//start time
+					//use old look up and search it here
+					String companyName = binarySearch(Integer.parseInt(rs0.getString(record)),companiesID, companiesName);
+					System.out.println(System.currentTimeMillis()-startTime);
+					System.out.println(companyName);
+					startTime = System.currentTimeMillis();//start time
+					sql="select Company from jobs_tbl where  companyID=?";// SQL code for jobs
+					pst2 = conn.prepareStatement(sql);//sql command for jobs
+					pst2.setInt(1,companiesID.get(record));//sql cmd pass the statement the user ID as a filter
+					rs2 = pst2.executeQuery();//sql cmd rs0 is jobs for that user
+					rs2.next();
+					companyName = rs2.getString(1);
+					System.out.println(System.currentTimeMillis()-startTime);
+					System.out.println(companyName);
+					feed += companyName+"."+rs1.getString(1)+" "+rs1.getString(2)+"."+rs0.getString(4)+"\n";
+				}
+			}
+			catch(SQLException e){
+				e.printStackTrace();
+			}
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			break;
+		case 6:
+			break;
+		case 7:
+			break;
+		case 8: 
+			break;
+		default:
+			break;
+		}
+		System.out.println(feed);
+		return feed;
+	}
+	
+	
+	private String binarySearch(int value, ArrayList<Integer> id, ArrayList<String> name){
+		int halfway = id.size()/2;
+		if( value == id.get(halfway)){
+			return name.get(halfway);
+		}
+		else if(value < id.get(halfway)){
+			for(int i = halfway; i<id.size()-1;i++){
+				id.remove(halfway);
+				name.remove(halfway);
+				return binarySearch(value, id,name);
+			}
+		}
+		else{
+			for(int i = 0; i <= halfway;i++){
+				id.remove(0);
+				name.remove(0);
+				return binarySearch(value, id,name);
+			}
+		}
+		return "";
+	}
+
+}
