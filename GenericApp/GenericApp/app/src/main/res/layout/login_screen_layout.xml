@@ -85,7 +85,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Cutting Edge Technologies"
-        android:id="@+id/textView"
+        android:id="@+id/text_view_client_messages"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 

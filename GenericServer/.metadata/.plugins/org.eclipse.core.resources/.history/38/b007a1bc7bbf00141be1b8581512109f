@@ -37,7 +37,6 @@ public class InfoServer implements Runnable {
     private final String GETFEEDS = "GETFEED";
     private final String CLIENTCMD = "#@!?Client:";
     private final String JOBCMD = "SETJOB:";
-    private final String ENDFEEDCMD ="#@!?EOF";
 	/**
 	 * 0 = Home screen
 	 * 1 = Contacts Search Screen
@@ -100,7 +99,7 @@ public class InfoServer implements Runnable {
 						}
 						if(serverMessage.contentEquals(GETFEEDS)){
 							String sendback =" ";
-							sendback = CLIENTCMD +"\n"+ getFeed();
+							sendback = CLIENTCMD + getFeed();
 							pw.println(sendback);
 							pw.flush();
 						}
@@ -130,7 +129,6 @@ public class InfoServer implements Runnable {
 			feed = getHomePageFeed();
 			break;
 		case 2:
-			feed = getMessageFeedClient();
 			break;
 		case 3:
 			break;
@@ -148,34 +146,9 @@ public class InfoServer implements Runnable {
 			break;
 		}
 		System.out.println(feed);
-		return feed+"\n"+ENDFEEDCMD;
-	}
-	
-	private String getMessageFeedClient() {
-		// TODO Auto-generated method stub
-		String feed = "";
-		try{
-			//create the statements and result sets
-			PreparedStatement prepStatementUser = null;
-			ResultSet resultsMessages = null;
-			//sql code for finding messages
-			String sql = "select * from Messages_tbl where Client =?";
-			//sql command for finding messages
-			prepStatementUser = conn.prepareStatement(sql);
-			//pass the ID as filter
-			prepStatementUser.setInt(1, userID);
-			//run the query
-			resultsMessages = prepStatementUser.executeQuery();
-			while(resultsMessages.next()){
-				feed+=resultsMessages.getString(2)+"\n";
-			}
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
 		return feed;
 	}
-
+	
 	//Homepage Feed
 	private String getHomePageFeed(){
 		String feed = "";

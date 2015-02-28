@@ -68,7 +68,8 @@ public class HomeScreen extends WebServiceActivity implements ConnectionFailureL
             Toast.makeText(this, "Settings", Toast.LENGTH_LONG).show();
         }
         else if(v.equals(messages)){
-            Toast.makeText(this, "Messages", Toast.LENGTH_LONG).show();
+            Intent messages = new Intent(this, MessagesScreenClient.class);
+            startActivity(messages);
         }
         else if(v.equals(viewRequests)){
             Toast.makeText(this, "View Requests", Toast.LENGTH_LONG).show();
@@ -82,5 +83,6 @@ public class HomeScreen extends WebServiceActivity implements ConnectionFailureL
     public void ConnectionFailure() {
         Intent login = new Intent(this, LoginScreen.class);
         startActivity(login);
+        finish();
     }
 }

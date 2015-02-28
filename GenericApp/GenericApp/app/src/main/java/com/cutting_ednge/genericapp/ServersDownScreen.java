@@ -12,7 +12,7 @@ public class ServersDownScreen extends WebServiceActivity implements  View.OnCli
     @Override
     public void onClick(View v) {
         //on clicking the button it kills the app
-        System.exit(1);
+        System.exit(0);
     }
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);

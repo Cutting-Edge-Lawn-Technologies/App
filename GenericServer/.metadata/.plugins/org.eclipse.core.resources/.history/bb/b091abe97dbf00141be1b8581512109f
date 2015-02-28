@@ -100,7 +100,7 @@ public class InfoServer implements Runnable {
 						}
 						if(serverMessage.contentEquals(GETFEEDS)){
 							String sendback =" ";
-							sendback = CLIENTCMD +"\n"+ getFeed();
+							sendback = CLIENTCMD + getFeed();
 							pw.println(sendback);
 							pw.flush();
 						}

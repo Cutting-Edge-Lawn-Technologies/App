@@ -30,14 +30,18 @@ public class WebService extends AsyncTask<String, Void, String> {
     private final String PAGECMD = "GOTOSCREEN:";
     private final String GETFEEDS = "GETFEED";
     private final String CLIENTCMD = "#@!?Client:";
-    private final String JOBCMD = "SETJOB:";
+    private final String ENDFEEDCMD ="#@!?EOL";
 
     private boolean connected = true;
 
+    private boolean changeAct = false;
+    private int activity = 0;
+    private boolean getFeed = false;
     private boolean login = false;
     private boolean loginComplete = false;
     private boolean loginResults = false;
     private boolean admin = false;
+    private String feed = "";
     private String USRNAME;
     private String PSSWORD;
     //on create instance, then start the thread
@@ -56,6 +60,8 @@ public class WebService extends AsyncTask<String, Void, String> {
     public boolean isAdmin(){
         return admin;
     }
+    //gets the feed when it is done
+    public String getFeed(){return feed;}
     //adds a listener to tell when the task is done
     public void addListener(OnTaskCompleted listener) {
         this.listener = listener;
@@ -163,6 +169,37 @@ public class WebService extends AsyncTask<String, Void, String> {
                     connListener.ConnectionFailure();
                 }
             }
+            else if(changeAct){
+                changeAct = false;
+                pw.println(SVRCMD+PAGECMD+activity);
+                pw.flush();
+            }
+            //else if getting the feeds
+            else if(getFeed){
+                //so we don't keep getting feeds
+                getFeed = false;
+                //reset the feed
+                feed = "";
+                //tell server to get the feed
+                pw.println(SVRCMD+GETFEEDS);
+                pw.flush();
+                String line;
+                try {
+                    if((line = br.readLine())==CLIENTCMD) {
+                        while (!(line = br.readLine()).equals(ENDFEEDCMD)) {
+                            feed += line + "\n";
+                        }
+                    }
+                    else{
+                        System.out.println("invalid server command");
+                        connListener.ConnectionFailure();
+                    }
+                } catch (IOException e) {
+                    connListener.ConnectionFailure();
+                    e.printStackTrace();
+                }
+                listener.onTaskCompleted();
+            }
         }
         //no idea why i need this, but it is important
         return null;
@@ -179,50 +216,34 @@ public class WebService extends AsyncTask<String, Void, String> {
         this.USRNAME = USRNAME;
         this.PSSWORD = PSSWORD;
     }
-    //**********************************************************************************************
-    //************************* noting below this line is currently being used yet *****************
-    //**********************************************************************************************
-    public String getFeeds() {
+
+    public void requestFeeds(int page) {
         /**
          * 0 = Home screen Client
          * 1 = Home screen Business
-         * 2 =
-         * 3 =
-         * 4 =
+         * 2 = Messages Client
+         * 3 = Message home Business
+         * 4 = Messages Business
          * 5 =
          * 6 =
          * 7 =
          * 8 =
          */
-        try {
-            pw.println(SVRCMD + GETFEEDS);
-            pw.flush();
-            String feed;
-            feed = br.readLine();
-            if(feed.startsWith(CLIENTCMD)){
-                return feed.replace(CLIENTCMD,"");
-            }
-            else{
-                return "A server error has occurred...";
-            }
-        }
-        catch(IOException e){
-            e.printStackTrace();
-            return "An error has occurred...";
-        }
+        changeActivity(page);
+        getFeed = true;
     }
     public void changeActivity(int activity){
-        pw.println(SVRCMD+PAGECMD+activity);
-        pw.flush();
+        this.activity = activity;
+        changeAct=true;
     }
-    public void setJob(int companyID){
-        pw.println(SVRCMD+JOBCMD+companyID);
-        pw.flush();
-    }
+    //**********************************************************************************************
+    //**********************noting below this line is currently not being used yet *****************
+    //**********************************************************************************************
     public void logout() {//log that shit out
         try {
             socket.close();
             instance = null;
+            listener.onTaskCompleted();
         } catch (IOException e) {
             e.printStackTrace();
         }
