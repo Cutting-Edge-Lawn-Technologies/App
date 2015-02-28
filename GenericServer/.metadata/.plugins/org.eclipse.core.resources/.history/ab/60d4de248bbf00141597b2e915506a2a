@@ -29,7 +29,7 @@ public class InfoServer implements Runnable {
 	
 	private int userID;
 	private Socket sock;
-	private int screen = 2;
+	private int screen = 0;
 	private int activeJob;
 	//commands
     private final String SVRCMD = "#@!?Server:";

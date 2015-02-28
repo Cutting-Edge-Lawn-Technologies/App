@@ -30,7 +30,7 @@ public class WebService extends AsyncTask<String, Void, String> {
     private final String PAGECMD = "GOTOSCREEN:";
     private final String GETFEEDS = "GETFEED";
     private final String CLIENTCMD = "#@!?Client:";
-    private final String ENDFEEDCMD ="#@!?EOL";
+    private final String ENDFEEDCMD ="#@!?EOF";
 
     private boolean connected = true;
 
@@ -81,6 +81,11 @@ public class WebService extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... params) {
         //todo: add a close option that sets running to false
+        String SVRCMD = "#@!?Server:";
+        String PAGECMD = "GOTOSCREEN:";
+        String GETFEEDS = "GETFEED";
+        String CLIENTCMD = "#@!?Client:";
+        String ENDFEEDCMD ="#@!?EOL";
         boolean running = true;
         //so can notify in loop thread
         Looper.prepare();
@@ -181,14 +186,23 @@ public class WebService extends AsyncTask<String, Void, String> {
                 //reset the feed
                 feed = "";
                 //tell server to get the feed
-                pw.println(SVRCMD+GETFEEDS);
+                String cmd = SVRCMD+GETFEEDS;
+                pw.println(cmd);
                 pw.flush();
                 String line;
                 try {
-                    if((line = br.readLine())==CLIENTCMD) {
-                        while (!(line = br.readLine()).equals(ENDFEEDCMD)) {
-                            feed += line + "\n";
+                    line = br.readLine();
+                    if((line).equals(CLIENTCMD)) {
+                        line = br.readLine();
+                        boolean stillReading = !(line.equals(ENDFEEDCMD));
+                        while (stillReading) {
+                            System.out.println(line);
+                            feed =feed + line + "\n";
+                            line = br.readLine();
+                            stillReading = !(line.trim().equals("#@!?EOF"));
                         }
+                        listener.onTaskCompleted();
+                        System.out.println("Done");
                     }
                     else{
                         System.out.println("invalid server command");
@@ -198,7 +212,6 @@ public class WebService extends AsyncTask<String, Void, String> {
                     connListener.ConnectionFailure();
                     e.printStackTrace();
                 }
-                listener.onTaskCompleted();
             }
         }
         //no idea why i need this, but it is important
@@ -229,7 +242,7 @@ public class WebService extends AsyncTask<String, Void, String> {
          * 7 =
          * 8 =
          */
-        changeActivity(page);
+        //changeActivity(page);
         getFeed = true;
     }
     public void changeActivity(int activity){
