@@ -184,15 +184,15 @@ public class WebService extends AsyncTask<String, Void, String> {
     //**********************************************************************************************
     public String getFeeds() {
         /**
-         * 0 = Home screen
-         * 1 = Contacts Search Screen
-         * 2 = Staff Page
-         * 3 = Job Search
-         * 4 = Inbox
-         * 5 = Job Page
-         * 6 = Ticket page
-         * 7 = Employee Page
-         * 8 = Contacts Screen
+         * 0 = Home screen Client
+         * 1 = Home screen Business
+         * 2 =
+         * 3 =
+         * 4 =
+         * 5 =
+         * 6 =
+         * 7 =
+         * 8 =
          */
         try {
             pw.println(SVRCMD + GETFEEDS);

@@ -1,15 +1,17 @@
 package com.cutting_ednge.genericapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 /**
  * Created by Aaron on 2/25/2015.
  */
-public class HomeScreen extends WebServiceActivity implements View.OnClickListener {
+public class HomeScreen extends WebServiceActivity implements ConnectionFailureListener, View.OnClickListener {
     //buttons
     Button settings;
     Button messages;
@@ -62,5 +64,23 @@ public class HomeScreen extends WebServiceActivity implements View.OnClickListen
     @Override
     public void onClick(View v) {
         //todo: add buttons and shits to this part and make them work
+        if(v.equals(settings)){
+            Toast.makeText(this, "Settings", Toast.LENGTH_LONG).show();
+        }
+        else if(v.equals(messages)){
+            Toast.makeText(this, "Messages", Toast.LENGTH_LONG).show();
+        }
+        else if(v.equals(viewRequests)){
+            Toast.makeText(this, "View Requests", Toast.LENGTH_LONG).show();
+        }
+        else{
+            Toast.makeText(this,"Submit Request", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void ConnectionFailure() {
+        Intent login = new Intent(this, LoginScreen.class);
+        startActivity(login);
     }
 }
