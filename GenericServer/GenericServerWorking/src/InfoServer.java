@@ -37,6 +37,7 @@ public class InfoServer implements Runnable {
     private final String GETFEEDS = "GETFEED";
     private final String CLIENTCMD = "#@!?Client:";
     private final String JOBCMD = "SETJOB:";
+    private String MESSAGECMD = "MSSGCMD:";
     private final String ENDFEEDCMD ="#@!?EOF";
 	/**
 	 * 0 = Home screen
@@ -103,6 +104,10 @@ public class InfoServer implements Runnable {
 							sendback = CLIENTCMD +"\n"+ getFeed();
 							pw.println(sendback);
 							pw.flush();
+						}
+						if(serverMessage.startsWith(MESSAGECMD)){
+							String toAdd = serverMessage.replace(MESSAGECMD, "");
+							addMessageToMessages(toAdd);
 						}
 						
 					}
@@ -297,5 +302,49 @@ public class InfoServer implements Runnable {
 		//never gets here, but eclipse is dumb and doesn't realize that it can't reach here
 		return "";
 	}
-
+	private void addMessageToMessages(String message){
+		//if the screen is the message screen for a client
+		if(screen ==2){
+			//first SQL statement to add a new message
+			String sql;
+			try {
+				//SQL statement is now looking up who is the user for tagging the message
+				sql = "select username from login_tbl where userID = ?";
+				//make a prepared statement that is telling it to look up the username of client
+				PreparedStatement pSLookUpUserName = conn.prepareStatement(sql);
+				//set the ID to the users ID
+				pSLookUpUserName.setInt(1, userID);
+				//run the query
+				ResultSet rsUserName = pSLookUpUserName.executeQuery();
+				//the message will not have the user name infront of the message
+				rsUserName.next();
+				message = rsUserName.getString(1)+": "+message;
+				sql = "select Business_IDs from users_businesses_tbl where User_IDs = ?";
+				PreparedStatement psLookUpLandLord = conn.prepareStatement(sql);
+				//look up who the land lord is based off the user
+				psLookUpLandLord.setInt(1, userID);
+				//run that shit
+				ResultSet rsLandLordID = psLookUpLandLord.executeQuery();
+				//get the land lord's ID
+				rsLandLordID.next();
+				int landLordID = rsLandLordID.getInt(1);
+				//remove this once it is working
+				System.out.println(landLordID);
+				//add the new message
+				sql = "select * from Messages_tbl";
+				//make a prepared statement that is telling it to update
+				PreparedStatement pSAddMessage = super.ucanaccess.createStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+				ResultSet rs = pSAddMessage.executeQuery();
+				rs.moveToInsertRow();
+				rs.updateString(2, message);
+				rs.updateInt(3, landLordID);
+				rs.updateInt(4, userID);
+				rs.insertRow();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
 }

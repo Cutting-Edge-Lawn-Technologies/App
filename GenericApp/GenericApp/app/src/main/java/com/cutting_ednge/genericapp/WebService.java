@@ -26,11 +26,6 @@ public class WebService extends AsyncTask<String, Void, String> {
     private PrintWriter pw;
     private BufferedReader br;
     //commands
-    private final String SVRCMD = "#@!?Server:";
-    private final String PAGECMD = "GOTOSCREEN:";
-    private final String GETFEEDS = "GETFEED";
-    private final String CLIENTCMD = "#@!?Client:";
-    private final String ENDFEEDCMD ="#@!?EOF";
 
     private boolean connected = true;
 
@@ -41,7 +36,9 @@ public class WebService extends AsyncTask<String, Void, String> {
     private boolean loginComplete = false;
     private boolean loginResults = false;
     private boolean admin = false;
+    private boolean sendMessage = false;
     private String feed = "";
+    private String message = "";
     private String USRNAME;
     private String PSSWORD;
     //on create instance, then start the thread
@@ -85,7 +82,8 @@ public class WebService extends AsyncTask<String, Void, String> {
         String PAGECMD = "GOTOSCREEN:";
         String GETFEEDS = "GETFEED";
         String CLIENTCMD = "#@!?Client:";
-        String ENDFEEDCMD ="#@!?EOL";
+        String MESSAGECMD = "MSSGCMD:";
+        String ENDFEEDCMD ="#@!?EOF";
         boolean running = true;
         //so can notify in loop thread
         Looper.prepare();
@@ -213,6 +211,14 @@ public class WebService extends AsyncTask<String, Void, String> {
                     e.printStackTrace();
                 }
             }
+            else if(sendMessage){
+                String cmd = SVRCMD+MESSAGECMD+message;
+                System.out.println(cmd);
+                pw.print(cmd);
+                pw.flush();
+                listener.onTaskCompleted();
+                sendMessage = false;
+            }
         }
         //no idea why i need this, but it is important
         return null;
@@ -248,6 +254,10 @@ public class WebService extends AsyncTask<String, Void, String> {
     public void changeActivity(int activity){
         this.activity = activity;
         changeAct=true;
+    }
+    public void sendMessage(String message){
+        this.message = message;
+        sendMessage=true;
     }
     //**********************************************************************************************
     //**********************noting below this line is currently not being used yet *****************
